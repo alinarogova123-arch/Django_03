@@ -41,9 +41,7 @@ COMMENDATIONS = [
 
 
 def fix_marks(child="Фролов Иван Григорьевич"):
-	for mark in Mark.objects.filter(schoolkid__full_name=child, points__in=[2,3]):
-		mark.points = 5
-		mark.save()
+	Mark.objects.filter(schoolkid__full_name=child, points__in=[2,3]).update(points=5)
 
 
 def remove_chastisements(child="Фролов Иван Григорьевич"):
@@ -55,4 +53,5 @@ def create_commendation(subject_title, child="Фролов Иван Григор
 	schoolkid = Schoolkid.objects.get(full_name=child)
 	lession = Lesson.objects.filter(year_of_study=6, group_letter="А", subject__title=subject_title.capitalize()).order_by("?").first()
 	Commendation.objects.create(text=commendation, created=lession.date, schoolkid=schoolkid, subject=lession.subject, teacher=lession.teacher)
+
 
