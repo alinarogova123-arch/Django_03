@@ -51,7 +51,8 @@ def remove_chastisements(child="Фролов Иван Григорьевич"):
 def create_commendation(subject_title, child="Фролов Иван Григорьевич"):
 	commendation = random.choice(COMMENDATIONS)
 	schoolkid = Schoolkid.objects.get(full_name=child)
-	lession = Lesson.objects.filter(year_of_study=6, group_letter="А", subject__title=subject_title.capitalize()).order_by("?").first()
-	Commendation.objects.create(text=commendation, created=lession.date, schoolkid=schoolkid, subject=lession.subject, teacher=lession.teacher)
+	lesson = Lesson.objects.filter(year_of_study=6, group_letter="А", subject__title=subject_title.capitalize()).order_by("?").first()
+	Commendation.objects.create(text=commendation, created=lesson.date, schoolkid=schoolkid, subject=lesson.subject, teacher=lesson.teacher)
+
 
 
