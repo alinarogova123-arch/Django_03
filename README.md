@@ -64,7 +64,7 @@ python manage.py shell
 Импортировать вышеперечисленные функции командой:
 
 ```
-from db_hack import fix_marks, remove_chastisements, create_commendation
+from db_hack import fix_marks, remove_chastisements, create_commendation, get_schoolkid
 ```
 Затем можно запускать функции, их аргументы и команды для запуска указаны в описании к функциям.
 
