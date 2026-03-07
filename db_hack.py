@@ -1,9 +1,12 @@
 import random
+import sys
 from datacenter.models import Chastisement
 from datacenter.models import Schoolkid
 from datacenter.models import Mark
 from datacenter.models import Commendation
 from datacenter.models import Lesson
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned
 
 
 COMMENDATIONS = [
@@ -40,19 +43,32 @@ COMMENDATIONS = [
 ]
 
 
-def fix_marks(child="Фролов Иван Григорьевич"):
-	Mark.objects.filter(schoolkid__full_name=child, points__in=[2,3]).update(points=5)
+def get_schoolkid(child_name):
+	try:
+		schoolkid = Schoolkid.objects.get(full_name__contains=child_name)
+	except ObjectDoesNotExist:
+		raise ObjectDoesNotExist("Ученик с таким именем не найден")
+	except MultipleObjectsReturned:
+		raise MultipleObjectsReturned("С таким именем несколько учеников")
+	else:
+		return schoolkid
 
 
-def remove_chastisements(child="Фролов Иван Григорьевич"):
-	Chastisement.objects.filter(schoolkid__full_name=child).delete()
+def fix_marks(child_name):
+	schoolkid = get_schoolkid(child_name)	
+	Mark.objects.filter(schoolkid=schoolkid, points__in=[2,3]).update(points=5)
 
 
-def create_commendation(subject_title, child="Фролов Иван Григорьевич"):
+def remove_chastisements(child_name):
+	schoolkid = get_schoolkid(child_name)
+	Chastisement.objects.filter(schoolkid=schoolkid).delete()
+
+
+def create_commendation(child_name, subject_title):
+	schoolkid = get_schoolkid(child_name)
 	commendation = random.choice(COMMENDATIONS)
-	schoolkid = Schoolkid.objects.get(full_name=child)
 	lesson = Lesson.objects.filter(year_of_study=6, group_letter="А", subject__title=subject_title.capitalize()).order_by("?").first()
-	Commendation.objects.create(text=commendation, created=lesson.date, schoolkid=schoolkid, subject=lesson.subject, teacher=lesson.teacher)
-
-
-
+	try:
+		Commendation.objects.create(text=commendation, created=lesson.date, schoolkid=schoolkid, subject=lesson.subject, teacher=lesson.teacher)
+	except AttributeError:
+		print("Такой предмет не найден")
